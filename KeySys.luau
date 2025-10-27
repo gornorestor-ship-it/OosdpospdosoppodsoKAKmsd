@@ -8,5 +8,4 @@ return {
                 Secret = "cf200edc-10e0-44fb-be51-af89f6854395", -- platoboost secret
             },                                                      
         },
-		SaveKey = false, -- automatically save and load the key.
 }
