@@ -1,5 +1,5 @@
 return {
-        Note = "Eternal Key System.", 
+        Note = "Eternal Key System whith simple protect.", 
 		
         API = {                                                     
             { -- PlatoBoost
