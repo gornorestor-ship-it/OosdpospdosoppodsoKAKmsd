@@ -1083,7 +1083,7 @@ Url=au.."/public/start",
 Method="POST",
 Body=X{
 service=ae,
-identifier=_(ar()) -- Уже правильно использует HWID
+identifier=_(ar())
 },
 Headers={
 ["Content-Type"]="application/json",
@@ -1147,7 +1147,7 @@ aj(ay);
 end
 end
 
---хххх
+
 local ay=function(ay)
 local az=aw();
 local aA=au.."/public/redeem/"..am(ae);
@@ -1175,12 +1175,6 @@ local aD=Y(aC.Body);
 
 if aD.success==true then
 if aD.data.valid==true then
--- ДОБАВИТЬ ПРОВЕРКУ HWID:
-if aD.data.hwid_locked and aD.data.hwid ~= _(ar()) then
-    ah"Key redeemed but HWID mismatch detected"
-    return false
-end
-
 if ag then
 if aD.data.hash==_("true".."-"..az.."-"..af)then
 return true
@@ -1213,6 +1207,7 @@ return false
 end
 end
 
+
 local az=function(az)
 if ai==true then
 return false,("A request is already being sent, please slow down.")
@@ -1239,11 +1234,6 @@ local aD=Y(aC.Body);
 
 if aD.success==true then
 if aD.data.valid==true then
--- ДОБАВИТЬ ПРОВЕРКУ HWID ЗДЕСЬ:
-if aD.data.hwid and aD.data.hwid ~= _(ar()) then
-    return false,("Key is locked to different hardware")
-end
-
 if ag then
 if aD.data.hash==_("true".."-"..aA.."-"..af)then
 return true,""
@@ -4842,67 +4832,80 @@ end
 end
 end
 
+-------------------------------------------------
 function af.SetImage(az,aA,aB,aC,aD)
-af.Image=aA
-if aB then
-af.ImageSize=aB
-ag=aB
-end
-if aC~=nil then
-af.Color=aC
-end
-if aD~=nil then
-af.IconThemed=aD
+    af.Image=aA
+    if aB then
+        af.ImageSize=aB
+        ag=aB
+    end
+    if aC~=nil then
+        af.Color=aC
+    end
+    if aD~=nil then
+        af.IconThemed=aD
+    end
+
+    if al then
+        if aA then
+            al.Size=UDim2.new(0,ag,0,ag)
+            aa.UpdateImage(al,aA,af.Title)
+
+            if typeof(af.Color)=="string"then
+                al.ImageLabel.ImageColor3=GetTextColorForHSB(Color3.fromHex(aa.Colors[af.Color]))
+            elseif typeof(af.Color)=="Color3"then
+                al.ImageLabel.ImageColor3=GetTextColorForHSB(af.Color)
+            elseif not af.Color then
+                al.ImageLabel.ImageColor3=Color3.new(1,1,1)
+            end
+
+            al.Visible=true
+            aj=ag
+        else
+            al.Visible=false
+            aj=0
+        end
+    else
+        if aA then
+            al=aa.Image(
+                aA,
+                af.Title,
+                af.UICorner-3,
+                ae.Window.Folder,
+                "Image",
+                not af.Color and true or false
+            )
+
+            if typeof(af.Color)=="string"then
+                al.ImageLabel.ImageColor3=GetTextColorForHSB(Color3.fromHex(aa.Colors[af.Color]))
+            elseif typeof(af.Color)=="Color3"then
+                al.ImageLabel.ImageColor3=GetTextColorForHSB(af.Color)
+            end
+
+            al.Size=UDim2.new(0,ag,0,ag)
+            aj=ag
+
+            local aE=af.UIElements.Container:FindFirstChild"Frame"
+            if aE then
+                al.Parent=aE
+                local b=aE:FindFirstChild"UIListLayout"
+                if b then
+                    al.LayoutOrder=0
+                end
+            end
+        end
+    end
 end
 
-if al then
-if aA then
-al.Size=UDim2.new(0,ag,0,ag)
-aa.UpdateImage(al,aA,af.Title)
-
-if typeof(af.Color)=="string"then
-al.ImageLabel.ImageColor3=GetTextColorForHSB(Color3.fromHex(aa.Colors[af.Color]))
-elseif typeof(af.Color)=="Color3"then
-al.ImageLabel.ImageColor3=GetTextColorForHSB(af.Color)
-elseif not af.Color then
-al.ImageLabel.ImageColor3=Color3.new(1,1,1)
-end
-
-al.Visible=true
-aj=ag
-else
-al.Visible=false
-aj=0
-end
-else
-if aA then
-al=aa.Image(
-aA,
-af.Title,
-af.UICorner-3,
-ae.Window.Folder,
-"Image",
-not af.Color and true or false
-)
-
-if typeof(af.Color)=="string"then
-al.ImageLabel.ImageColor3=GetTextColorForHSB(Color3.fromHex(aa.Colors[af.Color]))
-elseif typeof(af.Color)=="Color3"then
-al.ImageLabel.ImageColor3=GetTextColorForHSB(af.Color)
-end
-
-al.Size=UDim2.new(0,ag,0,ag)
-aj=ag
-
-local aE=af.UIElements.Container:FindFirstChild"Frame"
-if aE then
-al.Parent=aE
-local b=aE:FindFirstChild"UIListLayout"
-if b then
-al.LayoutOrder=0
-end
-end
-end
+-- ДОБАВЬ ЭТОТ МЕТОД ДЛЯ УДАЛЕНИЯ --
+function af.RemoveImage(az)
+    af.Image = nil
+    if al then
+        al.Visible = false
+        -- Или если хочешь полностью удалить:
+        -- al:Destroy()
+        -- al = nil
+    end
 end
 
 
@@ -5015,6 +5018,7 @@ local ac={}
 
 local ad=a.load'j'.New
 
+-------------------------------------------------------------------
 function ac.New(ae,af)
 af.Hover=false
 af.TextOffset=0
@@ -5054,6 +5058,8 @@ end
 return ag.__type,ag
 
 end
+----------------------------------------
+
 
 return ac end function a.B()
 local aa=a.load'b'local ab=
