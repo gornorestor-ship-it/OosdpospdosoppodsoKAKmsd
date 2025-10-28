@@ -4,7 +4,7 @@
     | |/ |/ / / _ \/ _  / /_/ // /  
     |__/|__/_/_//_/\_,_/\____/___/
     
-    v1.6.57  |  2025-10-27  |  Roblox UI Library for scripts
+    v1.6.56  |  2025-10-20  |  Roblox UI Library for scripts
     
     This script is NOT intended to be modified.
     To view the source code, see the `src/` folder on the official GitHub repository.
@@ -628,23 +628,15 @@ end
 j.Init(p,"Icon")
 
 
-function m.SanitizeFilename(u)
-local v=u:match"([^/]+)$"or u
-
-v=v:gsub("%.[^%.]+$","")
-
-v=v:gsub("[^%w%-_]","_")
-
-if#v>50 then
-v=v:sub(1,50)
-end
-
-return v
-end
-
 function m.Image(u,v,A,B,C,F,G,H)
+local function SanitizeFilename(J)
+J=J:gsub("[%s/\\:*?\"<>|]+","-")
+J=J:gsub("[^%w%-_%.]","")
+return J
+end
+
 B=B or"Temp"
-v=m.SanitizeFilename(v)
+v=SanitizeFilename(v)
 
 local J=p("Frame",{
 Size=UDim2.new(0,0,0,0),
@@ -713,7 +705,6 @@ end
 
 return J
 end
-
 
 return m end function a.c()
 
@@ -1083,7 +1074,7 @@ Url=au.."/public/start",
 Method="POST",
 Body=X{
 service=ae,
-identifier=_(ar()) -- Уже правильно использует HWID
+identifier=_(ar())
 },
 Headers={
 ["Content-Type"]="application/json",
@@ -1147,7 +1138,7 @@ aj(ay);
 end
 end
 
---хххх
+
 local ay=function(ay)
 local az=aw();
 local aA=au.."/public/redeem/"..am(ae);
@@ -1175,12 +1166,6 @@ local aD=Y(aC.Body);
 
 if aD.success==true then
 if aD.data.valid==true then
--- ДОБАВИТЬ ПРОВЕРКУ HWID:
-if aD.data.hwid_locked and aD.data.hwid ~= _(ar()) then
-    ah"Key redeemed but HWID mismatch detected"
-    return false
-end
-
 if ag then
 if aD.data.hash==_("true".."-"..az.."-"..af)then
 return true
@@ -1213,6 +1198,7 @@ return false
 end
 end
 
+
 local az=function(az)
 if ai==true then
 return false,("A request is already being sent, please slow down.")
@@ -1239,11 +1225,6 @@ local aD=Y(aC.Body);
 
 if aD.success==true then
 if aD.data.valid==true then
--- ДОБАВИТЬ ПРОВЕРКУ HWID ЗДЕСЬ:
-if aD.data.hwid and aD.data.hwid ~= _(ar()) then
-    return false,("Key is locked to different hardware")
-end
-
 if ag then
 if aD.data.hash==_("true".."-"..aA.."-"..af)then
 return true,""
@@ -1472,7 +1453,7 @@ New=a.load'g'.New
 return[[
 {
     "name": "windui",
-    "version": "1.6.57",
+    "version": "1.6.56",
     "main": "./dist/main.lua",
     "repository": "https://github.com/Footagesus/WindUI",
     "discord": "https://discord.gg/ftgs-development-hub-1300692552005189632",
@@ -3524,7 +3505,6 @@ end
 function aa.New(ae,af,ag)
 local ah={
 Title=af.Title or"Tag",
-Icon=af.Icon,
 Color=af.Color or Color3.fromHex"#315dff",
 Radius=af.Radius or 999,
 
@@ -3532,25 +3512,9 @@ TagFrame=nil,
 Height=26,
 Padding=10,
 TextSize=14,
-IconSize=16,
 }
 
-local ai
-if ah.Icon then
-ai=ab.Image(
-ah.Icon,
-ah.Icon,
-0,
-af.Window,
-"Tag",
-false
-)
-
-ai.Size=UDim2.new(0,ah.IconSize,0,ah.IconSize)
-ai.ImageLabel.ImageColor3=typeof(ah.Color)=="Color3"and GetTextColorForHSB(ah.Color)or nil
-end
-
-local aj=ac("TextLabel",{
+local ai=ac("TextLabel",{
 BackgroundTransparency=1,
 AutomaticSize="XY",
 TextSize=ah.TextSize,
@@ -3559,66 +3523,58 @@ Text=ah.Title,
 TextColor3=typeof(ah.Color)=="Color3"and GetTextColorForHSB(ah.Color)or nil,
 })
 
-local ak
+local aj
 
 if typeof(ah.Color)=="table"then
 
-ak=ac"UIGradient"
-for al,am in next,ah.Color do
-ak[al]=am
+aj=ac"UIGradient"
+for ak,al in next,ah.Color do
+aj[ak]=al
 end
 
-aj.TextColor3=GetTextColorForHSB(GetAverageColor(ak))
-if ai then
-ai.ImageLabel.ImageColor3=GetTextColorForHSB(GetAverageColor(ak))
-end
+ai.TextColor3=GetTextColorForHSB(GetAverageColor(aj))
 end
 
 
 
-local al=ab.NewRoundFrame(ah.Radius,"Squircle",{
+local ak=ab.NewRoundFrame(ah.Radius,"Squircle",{
 AutomaticSize="X",
 Size=UDim2.new(0,0,0,ah.Height),
 Parent=ag,
 ImageColor3=typeof(ah.Color)=="Color3"and ah.Color or Color3.new(1,1,1),
 },{
-ak,
+aj,
 ac("UIPadding",{
 PaddingLeft=UDim.new(0,ah.Padding),
 PaddingRight=UDim.new(0,ah.Padding),
 }),
 ai,
-aj,
 ac("UIListLayout",{
 FillDirection="Horizontal",
 VerticalAlignment="Center",
-Padding=UDim.new(0,ah.Padding/1.5)
 })
 })
 
 
-function ah.SetTitle(am,an)
-ah.Title=an
-aj.Text=an
+function ah.SetTitle(al,am)
+ah.Title=am
+ai.Text=am
 end
 
-function ah.SetColor(am,an)
-ah.Color=an
-if typeof(an)=="table"then
-local ao=GetAverageColor(an)
-ad(aj,.06,{TextColor3=GetTextColorForHSB(ao)}):Play()
-local ap=al:FindFirstChildOfClass"UIGradient"or ac("UIGradient",{Parent=al})
-for aq,ar in next,an do ap[aq]=ar end
-ad(al,.06,{ImageColor3=Color3.new(1,1,1)}):Play()
+function ah.SetColor(al,am)
+ah.Color=am
+if typeof(am)=="table"then
+local an=GetAverageColor(am)
+ad(ai,.06,{TextColor3=GetTextColorForHSB(an)}):Play()
+local ao=ak:FindFirstChildOfClass"UIGradient"or ac("UIGradient",{Parent=ak})
+for ap,aq in next,am do ao[ap]=aq end
+ad(ak,.06,{ImageColor3=Color3.new(1,1,1)}):Play()
 else
-if ak then
-ak:Destroy()
+if aj then
+aj:Destroy()
 end
-ad(aj,.06,{TextColor3=GetTextColorForHSB(an)}):Play()
-if ai then
-ad(ai.ImageLabel,.06,{ImageColor3=GetTextColorForHSB(an)}):Play()
-end
-ad(al,.06,{ImageColor3=an}):Play()
+ad(ai,.06,{TextColor3=GetTextColorForHSB(am)}):Play()
+ad(ak,.06,{ImageColor3=am}):Play()
 end
 end
 
@@ -5769,7 +5725,7 @@ end)
 function aj.Lock(al)
 aj.Locked=true
 ak=false
-return aj.KeybindFrame:Lock()
+return aj.KeybindtrueFrame:Lock()
 end
 function aj.Unlock(al)
 aj.Locked=false
@@ -6355,8 +6311,6 @@ end
 am.UIElements.MenuCanvas.Size=UDim2.new(0,ay+6+6+5+5+18+6+6,am.UIElements.MenuCanvas.Size.Y.Scale,am.UIElements.MenuCanvas.Size.Y.Offset)
 
 Callback()
-
-am.Values=at
 end
 
 
@@ -8098,7 +8052,7 @@ al.BackgroundTransparency=1
 
 
 
-local am=ParseAspectRatio(ak.AspectRatio)
+local am=ParseAspectRatio(aj.AspectRatio)
 local an
 
 if am then
@@ -8133,7 +8087,6 @@ Section=a.load'O',
 Divider=a.load'P',
 Space=a.load'Q',
 Image=a.load'R',
-
 },
 Load=function(ac,ae,ag,ai,aj,ak,al,am,an)
 for ao,ap in next,ag do
@@ -8199,12 +8152,13 @@ function at.Highlight(ay)
 av:Highlight()
 end
 function at.Destroy(ay)
-av:Destroy()
 
 table.remove(ai.AllElements,ar.GlobalIndex)
 table.remove(ac.Elements,ar.Index)
 table.remove(an.Elements,ar.Index)
 ac:UpdateAllElementShapes(ac)
+
+av:Destroy()
 end
 end
 
@@ -9502,8 +9456,6 @@ MaxSize=aq.MaxSize or Vector2.new(850,560),
 TopBarButtonIconSize=aq.TopBarButtonIconSize or 16,
 
 ToggleKey=aq.ToggleKey,
-ElementsRadius=aq.ElementsRadius,
-Radius=aq.Radius or 16,
 Transparent=aq.Transparent or false,
 HideSearchBar=aq.HideSearchBar~=false,
 ScrollBarEnabled=aq.ScrollBarEnabled or false,
@@ -9516,7 +9468,7 @@ AutoScale=aq.AutoScale~=false,
 OpenButton=aq.OpenButton,
 
 Position=UDim2.new(0.5,0,0.5,0),
-UICorner=nil,
+UICorner=16,
 UIPadding=14,
 UIElements={},
 CanDropdown=true,
@@ -9549,11 +9501,10 @@ ElementConfig={},
 PendingFlags={},
 }
 
-ar.UICorner=ar.Radius
 
 ar.ElementConfig={
-UIPadding=(ar.NewElements and 10 or 13),
-UICorner=ar.ElementsRadius or(ar.NewElements and 23 or 12),
+UIPadding=ar.NewElements and 10 or 13,
+UICorner=ar.NewElements and 23 or 12,
 }
 
 local as=ar.Size or UDim2.new(0,580,0,460)
@@ -9936,6 +9887,12 @@ local aD
 local aE=typeof(ar.Background)=="string"and string.match(ar.Background,"^video:(.+)")or nil
 local b=typeof(ar.Background)=="string"and not aE and string.match(ar.Background,"^https?://.+")or nil
 
+local function SanitizeFilename(e)
+e=e:gsub("[%s/\\:*?\"<>|]+","-")
+e=e:gsub("[^%w%-_%.]","")
+return e
+end
+
 local function GetImageExtension(e)
 local g=e:match"%.(%w+)$"or e:match"%.(%w+)%?"
 if g then
@@ -9951,14 +9908,14 @@ if typeof(ar.Background)=="string"and aE then
 aC=true
 
 if string.find(aE,"http")then
-local e=ar.Folder.."/assets/."..ai.SanitizeFilename(aE)..".webm"
+local e=ar.Folder.."/assets/."..SanitizeFilename(aE)..".webm"
 if not isfile(e)then
 local g,h=pcall(function()
 local g=ai.Request{Url=aE,Method="GET",Headers={["User-Agent"]="Roblox/Exploit"}}
 writefile(e,g.Body)
 end)
 if not g then
-warn("[ WindUI.Window.Background ] Failed to download video: "..tostring(h))
+warn("[ Window.Background ] Failed to download video: "..tostring(h))
 return
 end
 end
@@ -9967,10 +9924,9 @@ local g,h=pcall(function()
 return getcustomasset(e)
 end)
 if not g then
-warn("[ WindUI.Window.Background ] Failed to load custom asset: "..tostring(h))
+warn("[ Window.Background ] Failed to load custom asset: "..tostring(h))
 return
 end
-warn"[ WindUI.Window.Background ] VideoFrame may not work with custom video"
 aE=h
 end
 
@@ -9988,7 +9944,7 @@ CornerRadius=UDim.new(0,ar.UICorner)
 aD:Play()
 
 elseif b then
-local e=ar.Folder.."/assets/."..ai.SanitizeFilename(b)..GetImageExtension(b)
+local e=ar.Folder.."/assets/."..SanitizeFilename(b)..GetImageExtension(b)
 if not isfile(e)then
 local g,h=pcall(function()
 local g=ai.Request{Url=b,Method="GET",Headers={["User-Agent"]="Roblox/Exploit"}}
@@ -10270,7 +10226,7 @@ v.Size=UDim2.new(0,ar.TopBarButtonIconSize,0,ar.TopBarButtonIconSize)
 v.AnchorPoint=Vector2.new(0.5,0.5)
 v.Position=UDim2.new(0.5,0,0.5,0)
 
-local A=ai.NewRoundFrame(ar.UICorner-(ar.UIPadding/2),"Squircle",{
+local A=ai.NewRoundFrame(9,"Squircle",{
 Size=UDim2.new(0,36,0,36),
 LayoutOrder=r or 999,
 Parent=ar.UIElements.Main.Main.Topbar.Right,
@@ -10281,7 +10237,7 @@ ImageColor3="Text"
 },
 ImageTransparency=1
 },{
-ai.NewRoundFrame(ar.UICorner-(ar.UIPadding/2),"SquircleOutline",{
+ai.NewRoundFrame(9,"SquircleOutline",{
 Size=UDim2.new(1,0,1,0),
 ThemeTag={
 ImageColor3="Text",
